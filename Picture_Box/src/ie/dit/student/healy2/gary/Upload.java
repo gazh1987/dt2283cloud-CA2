@@ -14,9 +14,7 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 
 public class Upload extends HttpServlet
 {
-/**
-* 
-*/
+
 	private static final long serialVersionUID = 1L;
 	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 
@@ -25,20 +23,21 @@ public class Upload extends HttpServlet
 	{
 		@SuppressWarnings("deprecation")
 		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
+		
+		
 		BlobKey blobKey = blobs.get("myFile");
 		
 		//Check to see if the request contains an entry with the label myFile...
 		if (blobKey == null) 
 		{
-			//...If it does not, redirect to the root of the application
-			res.sendRedirect("/");
+			//If it does not, redirect to the root of the application
+			res.sendRedirect("/picture_box");
 		}
 		else
 		{
 			//If it does, redirect to the serve servlet
-			//System.out.println("Uploaded a file with blobKey: "+blobKey.getKeyString());
-			//res.getWriter().println("This is the file: "+ blobKey.getKeyString());
-			res.sendRedirect("/serve?blob-key=" + blobKey.getKeyString());
+			res.sendRedirect("/picture_box");
+			blobs.keySet();
 		}
 	}
 }

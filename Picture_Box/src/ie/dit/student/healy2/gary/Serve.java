@@ -14,12 +14,18 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 public class Serve extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
+	
+	//Create a blobstore service (for serving data)
 	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+	
 	// file Serve.java
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException
 	{
+		//Blob key is passed to the download handler
 		BlobKey blobKey = new BlobKey(req.getParameter("blob-key"));
-		blobstoreService.serve(blobKey, res); //gives the file back to the user
+		
+		//Serve the blob key to the user
+		blobstoreService.serve(blobKey, res); 
 	}
 }
