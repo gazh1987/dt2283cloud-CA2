@@ -24,7 +24,6 @@ public class Upload extends HttpServlet
 		@SuppressWarnings("deprecation")
 		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
 		
-		
 		BlobKey blobKey = blobs.get("myFile");
 		
 		//Check to see if the request contains an entry with the label myFile...

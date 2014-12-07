@@ -1,5 +1,10 @@
 package ie.dit.student.healy2.gary;
 	
+import com.google.appengine.api.images.Image;
+import com.google.appengine.api.images.ImagesService;
+import com.google.appengine.api.images.ImagesServiceFactory;
+import com.google.appengine.api.images.Transform;
+
 import java.io.IOException;
 import java.security.Principal;
 import java.util.Iterator;
@@ -10,6 +15,9 @@ import javax.servlet.http.*;
 
 import com.google.appengine.api.blobstore.BlobInfo;
 import com.google.appengine.api.blobstore.BlobInfoFactory;
+import com.google.appengine.api.blobstore.BlobKey;
+import com.google.appengine.api.blobstore.BlobstoreService;
+import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
@@ -18,6 +26,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 public class Picture_BoxServlet extends HttpServlet 
 {
 	private String key;
+	private BlobKey bkey;
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) 
 			throws IOException 
@@ -82,14 +91,28 @@ public class Picture_BoxServlet extends HttpServlet
 			blobList.add(iterator.next());
 		}
 		
-		resp.getWriter().println("<table> <tr> <td> Name </td> <td> Filetype </td> <td> Size </td></tr>");
+		//resp.getWriter().println("<table> <tr> <td> Name </td> <td> Filetype </td> <td> Size </td></tr>");
+		resp.getWriter().println("<table>");
 		
-		for (int i = 0; i < blobList.size(); i ++)
+		//Use this code to delete all blobs
+		/*BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
+		for(BlobInfo blobInfo : blobList)
+			blobstoreService.delete(blobInfo.getBlobKey());*/
+
+		for (int i = 1; i < blobList.size(); i ++)
 		{
 			key = blobList.get(i).getBlobKey().toString();
+			bkey = blobList.get(i).getBlobKey();
 			key = key.substring(10, key.length() - 1);
 			
-			resp.getWriter().println("<tr><td>" + blobList.get(i).getFilename() + "</td><td>" + blobList.get(i).getContentType() + "</td><td>" + blobList.get(i).getSize() + "</td></tr>");
+			ImagesService imagesService = ImagesServiceFactory.getImagesService();
+			String imageUrl = imagesService.getServingUrl(bkey);
+			
+			resp.getWriter().println("<tr><td><img src=\"imageUrl\" height=\"300\" width=\"300\">" 
+			+ "<br>FileName: " + blobList.get(i).getFilename() 
+			+ "<br>Content Type: " + blobList.get(i).getContentType() 
+			+ "<br>Size: " + blobList.get(i).getSize() 
+			+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"Download\" /><br><br></td></tr>");
 		}
 		
 		resp.getWriter().println("</table>");
