@@ -27,5 +27,6 @@ public class Delete extends HttpServlet
 		
 		//Serve the blob key to the user
 		blobstoreService.delete(blobKey); 
+		res.sendRedirect("/picture_box");
 	}
 }

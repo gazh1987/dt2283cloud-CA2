@@ -14,12 +14,14 @@
  		<%-- Define the action for this page to be to create an UploadUrl using the blobstore service... --%>
  		<%--... and to use that to call the /upload servlet with the blobkey when the upload is done --%>
  		<form action="<%= blobstoreService.createUploadUrl("/upload") %>" method="post" enctype="multipart/form-data">
- 			
- 			Title: <input type="text" name="foo">
-			<input type="file" name="myFile"><br><br> 
+			<input type="file" name="myFile"><br>
+			<input type="radio" name="content" value="public"> Public <br>
+			<input type="radio" name="content" value="private"> Private <br><br> 
  			<input type="submit" value="Submit"> 
+ 			
  			<%-- When we select the submit key, the file is uploaded to the blobstore and the /upload servlet... --%>
  			<%-- is loaded using the blobkey as the parameter --%>
+ 			
 		</form>
 
  	</body>
