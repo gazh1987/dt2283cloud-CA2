@@ -27,6 +27,7 @@ public class Picture_BoxServlet extends HttpServlet
 {
 	private String key;
 	private BlobKey bkey;
+	private int count = 0;
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) 
 			throws IOException 
@@ -99,20 +100,39 @@ public class Picture_BoxServlet extends HttpServlet
 		for(BlobInfo blobInfo : blobList)
 			blobstoreService.delete(blobInfo.getBlobKey());*/
 
-		for (int i = 1; i < blobList.size(); i ++)
-		{
+		for (int i = 0; i < blobList.size(); i ++)
+		{	
 			key = blobList.get(i).getBlobKey().toString();
-			bkey = blobList.get(i).getBlobKey();
 			key = key.substring(10, key.length() - 1);
 			
-			ImagesService imagesService = ImagesServiceFactory.getImagesService();
-			String imageUrl = imagesService.getServingUrl(bkey);
+			//NOTE: Find a better solution to this when finished all other major functionality. This is here so
+			//the app doesnt try to display the image of the deleted image with this blob key. If this wasnt
+			//here the app would crash when trying to find this blob.
+			if (!key.equals("HxY0g9syIv33S_11YIAyoQ"))
+			{
+				bkey = blobList.get(i).getBlobKey();
 			
-			resp.getWriter().println("<tr><td><img src=\"imageUrl\" height=\"300\" width=\"300\">" 
-			+ "<br>FileName: " + blobList.get(i).getFilename() 
-			+ "<br>Content Type: " + blobList.get(i).getContentType() 
-			+ "<br>Size: " + blobList.get(i).getSize() 
-			+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"Download\" /><br><br></td></tr>");
+				ImagesService imagesService = ImagesServiceFactory.getImagesService();
+				String imageUrl = imagesService.getServingUrl(bkey);
+			
+				if (count % 2 == 0)
+				{
+					resp.getWriter().println("<tr>");
+				}
+				count++;	
+				
+				resp.getWriter().println("<td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
+				+ "<br>FileName: " + blobList.get(i).getFilename() 
+				+ "<br>Content Type: " + blobList.get(i).getContentType()
+				+ "<br>Size: " + blobList.get(i).getSize() 
+				+ "<br>Blob Key: " + key
+				+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"Download\" /><br><br></td>");
+				
+				if (count % 2 == 0)
+				{
+					resp.getWriter().println("</tr>");
+				}
+			}
 		}
 		
 		resp.getWriter().println("</table>");
