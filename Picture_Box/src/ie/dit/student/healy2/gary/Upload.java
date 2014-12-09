@@ -23,7 +23,7 @@ public class Upload extends HttpServlet
 
 	public void doPost(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException 
-	{
+	{	
 		@SuppressWarnings("deprecation")
 		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
 		
@@ -32,12 +32,12 @@ public class Upload extends HttpServlet
 		
 		//Add info to datastore about uploaded blob;
 	    String content = req.getParameter("content");
+	    String email = User.email;
 	    
 	    Entity blob = new Entity("BlobKey");
-	    
-		
 	    blob.setProperty("blobKey", key);
 	    blob.setProperty("imageStatus", content);
+	    blob.setProperty("user", email);
 	    
 	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    datastore.put(blob);
