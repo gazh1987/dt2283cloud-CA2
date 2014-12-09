@@ -14,8 +14,6 @@ import com.google.appengine.api.blobstore.BlobstoreServiceFactory;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 
 public class Upload extends HttpServlet
 {
@@ -30,18 +28,21 @@ public class Upload extends HttpServlet
 		Map<String, BlobKey> blobs = blobstoreService.getUploadedBlobs(req);
 		
 		BlobKey blobKey = blobs.get("myFile");
-		String key = blobKey.toString();
+		String key = blobKey.getKeyString();
 		
-		//Add info to datastore about uploaded blob
-		Key bKey = KeyFactory.createKey("BlobKey", key);
+		//Add info to datastore about uploaded blob;
 	    String content = req.getParameter("content");
-	    Entity blob = new Entity("blobkey", bKey);
+	    
+	    Entity blob = new Entity("BlobKey");
+	    
+		
+	    blob.setProperty("blobKey", key);
 	    blob.setProperty("imageStatus", content);
 	    
 	    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 	    datastore.put(blob);
 
-		if (blobKey == null) 
+		if (blobKey.equals(null)) 
 		{
 			res.sendRedirect("/picture_box");
 		}

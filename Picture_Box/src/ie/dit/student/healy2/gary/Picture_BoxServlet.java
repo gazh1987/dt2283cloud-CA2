@@ -17,9 +17,9 @@ import com.google.appengine.api.blobstore.BlobKey;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.EntityNotFoundException;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 
@@ -28,9 +28,9 @@ import com.google.appengine.api.users.UserServiceFactory;
 public class Picture_BoxServlet extends HttpServlet 
 {
 	private String key;
-	private BlobKey bkey;
-	private Key k;
-	private Entity imgStatus; 
+	private BlobKey bkey; 
+	private String imageStatus;
+	private String bk;
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) 
 			throws IOException 
@@ -67,37 +67,32 @@ public class Picture_BoxServlet extends HttpServlet
 			{	
 				key = blobList.get(i).getBlobKey().toString();
 				key = key.substring(10, key.length() - 1);
-				
 				bkey = blobList.get(i).getBlobKey();
 
-				//YOU ARE HERE
-				k = KeyFactory.createKey("BlobKey", key);
-				resp.getWriter().println(k.toString());
-				
-				String a = "";
-				
-				try 
+				Query q  = new Query("BlobKey");
+				PreparedQuery pq = datastore.prepare(q);
+				for (Entity e : pq.asIterable())
 				{
-					imgStatus = datastore.get(k);
-					a = (String) imgStatus.getProperty("imageStatus");
-				} 
-				catch (EntityNotFoundException e) 
-				{
-					resp.getWriter().println("IT BROKE");
-					e.printStackTrace();
+					bk = (String) e.getProperty("blobKey");
+					if (bk.equals(key))
+					{
+						imageStatus = (String) e.getProperty("imageStatus");
+					}
 				}
 				
 				ImagesService imagesService = ImagesServiceFactory.getImagesService();
 				@SuppressWarnings("deprecation")
 				String imageUrl = imagesService.getServingUrl(bkey);
 		
-				resp.getWriter().println("<tr><td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
-						+ "<br>FileName: " + blobList.get(i).getFilename() 
-						+ "<br>Size: " + blobList.get(i).getSize() 
-						+ "<br>Upload Date: " + blobList.get(i).getCreation() 
-						+ "<br>Image Status: " + a
-						+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"View Larger Image\" /></td></tr>");
-				
+				if (imageStatus.equals("public"))
+				{
+					resp.getWriter().println("<tr><td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
+							+ "<br>FileName: " + blobList.get(i).getFilename() 
+							+ "<br>Size: " + blobList.get(i).getSize() 
+							+ "<br>Upload Date: " + blobList.get(i).getCreation() 
+							+ "<br>Image Status: " + imageStatus
+							+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"View Larger Image\" /></td></tr>");
+				}
 			}
 			
 			resp.getWriter().println("</table>");
@@ -123,20 +118,17 @@ public class Picture_BoxServlet extends HttpServlet
 					key = blobList.get(i).getBlobKey().toString();
 					key = key.substring(10, key.length() - 1);
 					bkey = blobList.get(i).getBlobKey();
-
-					k = KeyFactory.createKey("BlobKey", key);
-					resp.getWriter().println("k: " + k.toString());
 					
-					String a = "";
-					try 
+					Query q  = new Query("BlobKey");
+					PreparedQuery pq = datastore.prepare(q);
+					for (Entity e : pq.asIterable())
 					{
-						imgStatus = datastore.get(k);
-						a = (String) imgStatus.getProperty("imageStatus");
-					} 
-					catch (EntityNotFoundException e) 
-					{
-						resp.getWriter().println("Entity not found");
-						e.printStackTrace();
+						bk = (String) e.getProperty("blobKey");
+						
+						if (bk.equals(key))
+						{
+							imageStatus = (String) e.getProperty("imageStatus");
+						}
 					}
 					
 					ImagesService imagesService = ImagesServiceFactory.getImagesService();
@@ -146,7 +138,7 @@ public class Picture_BoxServlet extends HttpServlet
 					resp.getWriter().println("<tr><td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
 							+ "<br>FileName: " + blobList.get(i).getFilename() 
 							+ "<br>Size: " + blobList.get(i).getSize() 
-							+ "<br>Image Status: " + a
+							+ "<br>Image Status: " + imageStatus
 							+ "<br>Upload Date: " + blobList.get(i).getCreation() 
 							+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"View Larger Image\" />"
 							+ "<br><input onClick=\"location.href='delete?blob-key="+key+"'\" type=\"button\" value=\"Delete Image\" /></td></tr>");
@@ -171,20 +163,43 @@ public class Picture_BoxServlet extends HttpServlet
 				{	
 					key = blobList.get(i).getBlobKey().toString();
 					key = key.substring(10, key.length() - 1);
-					
 					bkey = blobList.get(i).getBlobKey();
+					
+					Query q  = new Query("BlobKey");
+					PreparedQuery pq = datastore.prepare(q);
+					for (Entity e : pq.asIterable())
+					{
+						bk = (String) e.getProperty("blobKey");
+						
+						if (bk.equals(key))
+						{
+							imageStatus = (String) e.getProperty("imageStatus");
+						}
+					}
 
 					ImagesService imagesService = ImagesServiceFactory.getImagesService();
 					@SuppressWarnings("deprecation")
 					String imageUrl = imagesService.getServingUrl(bkey);
 			
-					resp.getWriter().println("<tr><td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
-							+ "<br>FileName: " + blobList.get(i).getFilename() 
-							+ "<br>Size: " + blobList.get(i).getSize() 
-							+ "<br>Upload Date:: " + blobList.get(i).getCreation() 
-							+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"View Larger Image\" />"
-							+ "<br><input onClick=\"location.href='delete?blob-key="+key+"'\" type=\"button\" value=\"Delete Image\" /></td></tr>");
-					
+					if (imageStatus.equals("public"))
+					{
+						resp.getWriter().println("<tr><td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
+								+ "<br>FileName: " + blobList.get(i).getFilename() 
+								+ "<br>Size: " + blobList.get(i).getSize() 
+								+ "<br>Image Status: " + imageStatus
+								+ "<br>Upload Date:: " + blobList.get(i).getCreation() 
+								+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"View Larger Image\" />"
+								+ "<br><input onClick=\"location.href='delete?blob-key="+key+"'\" type=\"button\" value=\"Delete Image\" /></td></tr>");
+					}
+					else
+					{
+						resp.getWriter().println("<tr><td><img src=" + imageUrl + " height=\"300\" width=\"300\">" 
+								+ "<br>FileName: " + blobList.get(i).getFilename() 
+								+ "<br>Size: " + blobList.get(i).getSize() 
+								+ "<br>Image Status: " + imageStatus
+								+ "<br>Upload Date:: " + blobList.get(i).getCreation() 
+								+ "<br><input onClick=\"location.href='serve?blob-key="+key+"'\" type=\"button\" value=\"View Larger Image\" /></td></tr>");
+					}
 				}
 				
 				resp.getWriter().println("</table>");
