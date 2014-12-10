@@ -7,6 +7,8 @@
 <html>
 	 <head>
  		<title>Upload Test</title>
+ 		
+ 		<%-- CSS --%>
 		<style>body {background-color: linen;}</style>
  	</head>
  	

@@ -15,18 +15,19 @@ public class Delete extends HttpServlet
 {
 	private static final long serialVersionUID = 1L;
 	
-	//Create a blobstore service (for serving data)
+	//Create an instance blobstore service 
 	private BlobstoreService blobstoreService = BlobstoreServiceFactory.getBlobstoreService();
 	
-	// file Serve.java
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws IOException
 	{
 		//Blob key is passed to the download handler
 		BlobKey blobKey = new BlobKey(req.getParameter("blob-key"));
 		
-		//Serve the blob key to the user
+		//delete the blob from the blobstore
 		blobstoreService.delete(blobKey); 
+		
+		//redirect to the main page
 		res.sendRedirect("/picture_box");
 	}
 }
